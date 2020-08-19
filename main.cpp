@@ -79,6 +79,11 @@ void convertCONT(SkyblivionConverter &converter) {
 	skyrimMod->CONT.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::CONTRecord*> targets = std::vector<Sk::CONTRecord*>();
 	log_debug << obRecords.size() << " CONTs found in oblivion file.\n";
+
+	//WTM:  Change:  Added:
+	std::vector<Record*, std::allocator<Record*>> refrRecords;
+	skyblivion->CELL.refr_pool.MakeRecordsVector(refrRecords);
+
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
 		Ob::CONTRecord *p = (Ob::CONTRecord*)obRecords[it];
 
@@ -95,8 +100,8 @@ void convertCONT(SkyblivionConverter &converter) {
 			Ob::SCPTRecord* script = reinterpret_cast<Ob::SCPTRecord*>(*std::find_if(converter.getScripts().begin(), converter.getScripts().end(), [=](const Record* record) { return record->formID == p->SCRI.value;  }));
 
 			try {
-				Script* convertedScript = converter.createVirtualMachineScriptFor(script);
-
+				SkyblivionScript skyblivionScript = converter.getSkyblivionScript(script);
+				Script* convertedScript = converter.createVirtualMachineScriptBySkyblivionScript(skyblivionScript);
 				target->VMAD = VMADRecord();
 				target->VMAD.scripts.push_back(convertedScript);
 				target->IsChanged(true); //Hack - idk why it doesn't mark itself..
@@ -965,7 +970,7 @@ void convertLIGH(SkyblivionConverter &converter) {
 }
 
 void addSpeakAsNpcs(SkyblivionConverter &converter, Collection &skyrimCollection) {
-	std::string metadataFile = converter.ROOT_BUILD_PATH() + "Metadata";
+	std::string metadataFile = converter.ROOT_BUILD_PATH() + "Metadata.txt";//WTM:  Change:  Added .txt
 	std::FILE* scriptHandle = std::fopen(metadataFile.c_str(), "r");
 	if (!scriptHandle) {
 		log_error << "Couldn't find Metadata File\n";
@@ -1420,8 +1425,12 @@ int main(int argc, char * argv[]) {
 
 	addSpeakAsNpcs(converter, skyrimCollection);
 
-	log_debug << std::endl << "Converting DIAL records.. " << std::endl;
+	log_debug << std::endl << "Converting DIAL records..." << std::endl;
 	std::vector<Sk::DIALRecord *> *resDIAL = converter.convertDIALFromOblivion();
+
+
+	log_debug << std::endl << "Adding SOUN records from SNDR records..." << std::endl;
+	converter.addSOUNFromSNDR();
 
 	/**
 	* @todo - How we handle topics splitted into N dialogue topics and suffixed by QSTI value?
@@ -1433,10 +1442,10 @@ int main(int argc, char * argv[]) {
 		converter.insertToEdidMap(dialEdid, dial->formID);
 	}
 
-	log_debug << std::endl << "Converting QUST records.. " << std::endl;
+	log_debug << std::endl << "Converting QUST records..." << std::endl;
 	std::vector<Sk::QUSTRecord *> *resQUST = converter.convertQUSTFromOblivion();
 
-	log_debug << std::endl << "Converting PACK records.. " << std::endl;
+	log_debug << std::endl << "Converting PACK records..." << std::endl;
     addPackageTemplates(converter, skyrimCollection);
 
 	std::vector<Record*, std::allocator<Record*>> packages;
@@ -1472,37 +1481,37 @@ int main(int argc, char * argv[]) {
 		converter.insertToEdidMap(qustEdid, qust->formID);
 	}
 
-	log_debug << std::endl << "Binding properties of INFO and QUST related scripts.. " << std::endl;
+	log_debug << std::endl << "Binding properties of INFO and QUST related scripts..." << std::endl;
 	converter.bindScriptProperties(resDIAL, resQUST);
 
-	log_debug << std::endl << "Binding VMADs to ACTI records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to ACTI records..." << std::endl;
 	convertACTI(converter);
-	log_debug << std::endl << "Binding VMADs to CONT records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to CONT records..." << std::endl;
 	convertCONT(converter);
-	log_debug << std::endl << "Binding VMADs to DOOR records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to DOOR records..." << std::endl;
 	convertDOOR(converter);
-	log_debug << std::endl << "Binding VMADs to NPC_ records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to NPC_ records..." << std::endl;
 	convertNPC_(converter);
-	log_debug << std::endl << "Binding VMADs to WEAP records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to WEAP records..." << std::endl;
 	convertWEAP(converter);
-	log_debug << std::endl << "Binding VMADs to ARMO records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to ARMO records..." << std::endl;
 	convertARMO(converter);
-	log_debug << std::endl << "Binding VMADs to BOOK records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to BOOK records..." << std::endl;
 	convertBOOK(converter);
-	log_debug << std::endl << "Binding VMADs to INGR records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to INGR records..." << std::endl;
 	convertINGR(converter);
-	log_debug << std::endl << "Binding VMADs to KEYM records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to KEYM records..." << std::endl;
 	convertKEYM(converter);
-	log_debug << std::endl << "Binding VMADs to MISC records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to MISC records..." << std::endl;
 	convertMISC(converter);
-	log_debug << std::endl << "Binding VMADs to FLOR records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to FLOR records..." << std::endl;
 	convertFLOR(converter);
-	log_debug << std::endl << "Binding VMADs to FURN records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to FURN records..." << std::endl;
 	convertFURN(converter);
-	log_debug << std::endl << "Binding VMADs to LIGH records.. " << std::endl;
+	log_debug << std::endl << "Binding VMADs to LIGH records..." << std::endl;
 	convertLIGH(converter);
 
-    SaveFlags skSaveFlags = SaveFlags(2);
+    ModSaveFlags skSaveFlags = ModSaveFlags(2);
 
     skyrimCollection.SaveMod((ModFile*&)skyrimMod, skSaveFlags, "GECK.esp");
 

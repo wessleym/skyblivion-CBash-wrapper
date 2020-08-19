@@ -1,1 +1,1 @@
-.\build\Release\GECKFrontend.exe D:\Media\Games\Oblivion\Data\ D:\Media\Games\Skyrim\Data\ Oblivion.esm AIPackages.esp
+.\build\Release\GECKFrontend.exe "C:\Program Files (x86)\Steam\steamapps\common\Oblivion\Data\\" "C:\Program Files (x86)\Steam\steamapps\common\Skyrim Special Edition\Data\\" "C:\Users\Wess\Documents\Visual Studio 2019\Projects\Skyblivion.OBSLexicalParser\Skyblivion.OBSLexicalParserApp\bin\Debug\netcoreapp2.2\Data\Build\\" Oblivion.esm AIPackages.esp
