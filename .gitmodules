@@ -1,3 +1,4 @@
 [submodule "CBash"]
 	path = CBash
 	url = https://github.com/wessleym/CBash
+	branch = master
