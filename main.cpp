@@ -6,15 +6,15 @@
 using namespace Skyblivion;
 
 void convertACTI(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->ACTI.pool.MakeRecordsVector(obRecords);
-	skyblivion->ACTI.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->ACTI.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->ACTI.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->ACTI.pool.MakeRecordsVector(skbRecords);
+	geckFile->ACTI.pool.MakeRecordsVector(skbRecords);
 	
 	std::vector<Sk::ACTIRecord*> targets = std::vector<Sk::ACTIRecord*>();
 	log_debug << obRecords.size() << " ACTIs found in oblivion file.\n";
@@ -52,13 +52,13 @@ void convertACTI(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->ACTI.pool.construct(targets.at(i), NULL, false);
+		geckFile->ACTI.pool.construct(targets.at(i), NULL, false);
 	}
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->ACTI.pool.MakeRecordsVector(modRecords);
+	geckFile->ACTI.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 			Sk::ACTIRecord* acti = (Sk::ACTIRecord*) modRecords.at(i);
@@ -68,21 +68,21 @@ void convertACTI(SkyblivionConverter &converter) {
 }
 
 void convertCONT(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->CONT.pool.MakeRecordsVector(obRecords);
-	skyblivion->CONT.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->CONT.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->CONT.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->CONT.pool.MakeRecordsVector(skbRecords);
+	geckFile->CONT.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::CONTRecord*> targets = std::vector<Sk::CONTRecord*>();
 	log_debug << obRecords.size() << " CONTs found in oblivion file.\n";
 
 	//WTM:  Change:  Added:
 	std::vector<Record*, std::allocator<Record*>> refrRecords;
-	skyblivion->CELL.refr_pool.MakeRecordsVector(refrRecords);
+	skyblivionFile->CELL.refr_pool.MakeRecordsVector(refrRecords);
 
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
 		Ob::CONTRecord *p = (Ob::CONTRecord*)obRecords[it];
@@ -118,14 +118,14 @@ void convertCONT(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->CONT.pool.construct(targets.at(i), NULL, false);
+		geckFile->CONT.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->CONT.pool.MakeRecordsVector(modRecords);
+	geckFile->CONT.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 			Sk::CONTRecord* acti = (Sk::CONTRecord*) modRecords.at(i);
@@ -137,15 +137,15 @@ void convertCONT(SkyblivionConverter &converter) {
 }
 
 void convertDOOR(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->DOOR.pool.MakeRecordsVector(obRecords);
-	skyblivion->DOOR.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->DOOR.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->DOOR.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->DOOR.pool.MakeRecordsVector(skbRecords);
+	geckFile->DOOR.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::DOORRecord*> targets = std::vector<Sk::DOORRecord*>();
 	log_debug << obRecords.size() << " DOORs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -182,13 +182,13 @@ void convertDOOR(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->DOOR.pool.construct(targets.at(i), NULL, false);
+		geckFile->DOOR.pool.construct(targets.at(i), NULL, false);
 	}
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->DOOR.pool.MakeRecordsVector(modRecords);
+	geckFile->DOOR.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 			Sk::DOORRecord* acti = (Sk::DOORRecord*) modRecords.at(i);
@@ -198,19 +198,19 @@ void convertDOOR(SkyblivionConverter &converter) {
 }
 
 void convertNPC_(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> Creatures;
 	std::vector<Record*, std::allocator<Record*>> LeveledCrea;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->NPC_.pool.MakeRecordsVector(obRecords);
-	oblivionMod->CREA.pool.MakeRecordsVector(Creatures);
-	oblivionMod->LVLC.pool.MakeRecordsVector(LeveledCrea);
-	skyblivion->NPC_.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->NPC_.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->NPC_.pool.MakeRecordsVector(obRecords);
+	oblivionFile->CREA.pool.MakeRecordsVector(Creatures);
+	oblivionFile->LVLC.pool.MakeRecordsVector(LeveledCrea);
+	skyblivionFile->NPC_.pool.MakeRecordsVector(skbRecords);
+	geckFile->NPC_.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::NPC_Record*> targets = std::vector<Sk::NPC_Record*>();
 	log_debug << obRecords.size() << " NPCs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -322,13 +322,13 @@ void convertNPC_(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->NPC_.pool.construct(targets.at(i), NULL, false);
+		geckFile->NPC_.pool.construct(targets.at(i), NULL, false);
 	}
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->NPC_.pool.MakeRecordsVector(modRecords);
+	geckFile->NPC_.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 			Sk::NPC_Record* acti = (Sk::NPC_Record*) modRecords.at(i);
@@ -339,15 +339,15 @@ void convertNPC_(SkyblivionConverter &converter) {
 }
 
 void convertWEAP(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->WEAP.pool.MakeRecordsVector(obRecords);
-	skyblivion->WEAP.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->WEAP.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->WEAP.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->WEAP.pool.MakeRecordsVector(skbRecords);
+	geckFile->WEAP.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::WEAPRecord*> targets = std::vector<Sk::WEAPRecord*>();
 	log_debug << obRecords.size() << " WEAPs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -384,14 +384,14 @@ void convertWEAP(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->WEAP.pool.construct(targets.at(i), NULL, false);
+		geckFile->WEAP.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->WEAP.pool.MakeRecordsVector(modRecords);
+	geckFile->WEAP.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 			Sk::WEAPRecord* acti = (Sk::WEAPRecord*) modRecords.at(i);
@@ -401,17 +401,17 @@ void convertWEAP(SkyblivionConverter &converter) {
 }
 
 void convertARMO(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> obClotRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->ARMO.pool.MakeRecordsVector(obRecords);
-	oblivionMod->CLOT.pool.MakeRecordsVector(obClotRecords);
-	skyblivion->ARMO.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->ARMO.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->ARMO.pool.MakeRecordsVector(obRecords);
+	oblivionFile->CLOT.pool.MakeRecordsVector(obClotRecords);
+	skyblivionFile->ARMO.pool.MakeRecordsVector(skbRecords);
+	geckFile->ARMO.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::ARMORecord*> targets = std::vector<Sk::ARMORecord*>();
 	log_debug << obRecords.size() << " ARMOs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -481,14 +481,14 @@ void convertARMO(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->ARMO.pool.construct(targets.at(i), NULL, false);
+		geckFile->ARMO.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->ARMO.pool.MakeRecordsVector(modRecords);
+	geckFile->ARMO.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::ARMORecord* acti = (Sk::ARMORecord*) modRecords.at(i);
@@ -498,15 +498,15 @@ void convertARMO(SkyblivionConverter &converter) {
 }
 
 void convertBOOK(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->BOOK.pool.MakeRecordsVector(obRecords);
-	skyblivion->BOOK.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->BOOK.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->BOOK.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->BOOK.pool.MakeRecordsVector(skbRecords);
+	geckFile->BOOK.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::BOOKRecord*> targets = std::vector<Sk::BOOKRecord*>();
 	log_debug << obRecords.size() << " BOOKs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -543,14 +543,14 @@ void convertBOOK(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->BOOK.pool.construct(targets.at(i), NULL, false);
+		geckFile->BOOK.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->BOOK.pool.MakeRecordsVector(modRecords);
+	geckFile->BOOK.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::BOOKRecord* acti = (Sk::BOOKRecord*) modRecords.at(i);
@@ -560,15 +560,15 @@ void convertBOOK(SkyblivionConverter &converter) {
 }
 
 void convertINGR(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->INGR.pool.MakeRecordsVector(obRecords);
-	skyblivion->INGR.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->INGR.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->INGR.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->INGR.pool.MakeRecordsVector(skbRecords);
+	geckFile->INGR.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::INGRRecord*> targets = std::vector<Sk::INGRRecord*>();
 	log_debug << obRecords.size() << " INGRs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -608,14 +608,14 @@ void convertINGR(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->INGR.pool.construct(targets.at(i), NULL, false);
+		geckFile->INGR.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->INGR.pool.MakeRecordsVector(modRecords);
+	geckFile->INGR.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::INGRRecord* acti = (Sk::INGRRecord*) modRecords.at(i);
@@ -625,15 +625,15 @@ void convertINGR(SkyblivionConverter &converter) {
 }
 
 void convertKEYM(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->KEYM.pool.MakeRecordsVector(obRecords);
-	skyblivion->KEYM.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->KEYM.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->KEYM.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->KEYM.pool.MakeRecordsVector(skbRecords);
+	geckFile->KEYM.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::KEYMRecord*> targets = std::vector<Sk::KEYMRecord*>();
 	log_debug << obRecords.size() << " KEYMs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -670,14 +670,14 @@ void convertKEYM(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->KEYM.pool.construct(targets.at(i), NULL, false);
+		geckFile->KEYM.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->KEYM.pool.MakeRecordsVector(modRecords);
+	geckFile->KEYM.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::KEYMRecord* acti = (Sk::KEYMRecord*) modRecords.at(i);
@@ -687,17 +687,17 @@ void convertKEYM(SkyblivionConverter &converter) {
 }
 
 void convertMISC(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> obSgstRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->MISC.pool.MakeRecordsVector(obRecords);
-	oblivionMod->SGST.pool.MakeRecordsVector(obSgstRecords);
-	skyblivion->MISC.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->MISC.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->MISC.pool.MakeRecordsVector(obRecords);
+	oblivionFile->SGST.pool.MakeRecordsVector(obSgstRecords);
+	skyblivionFile->MISC.pool.MakeRecordsVector(skbRecords);
+	geckFile->MISC.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::MISCRecord*> targets = std::vector<Sk::MISCRecord*>();
 	log_debug << obRecords.size() << " MISCs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -767,14 +767,14 @@ void convertMISC(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->MISC.pool.construct(targets.at(i), NULL, false);
+		geckFile->MISC.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->MISC.pool.MakeRecordsVector(modRecords);
+	geckFile->MISC.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::MISCRecord* acti = (Sk::MISCRecord*) modRecords.at(i);
@@ -784,15 +784,15 @@ void convertMISC(SkyblivionConverter &converter) {
 }
 
 void convertFLOR(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->FLOR.pool.MakeRecordsVector(obRecords);
-	skyblivion->FLOR.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->FLOR.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->FLOR.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->FLOR.pool.MakeRecordsVector(skbRecords);
+	geckFile->FLOR.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::FLORRecord*> targets = std::vector<Sk::FLORRecord*>();
 	log_debug << obRecords.size() << " FLORs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -829,14 +829,14 @@ void convertFLOR(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->FLOR.pool.construct(targets.at(i), NULL, false);
+		geckFile->FLOR.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->FLOR.pool.MakeRecordsVector(modRecords);
+	geckFile->FLOR.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::FLORRecord* acti = (Sk::FLORRecord*) modRecords.at(i);
@@ -846,15 +846,15 @@ void convertFLOR(SkyblivionConverter &converter) {
 }
 
 void convertFURN(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->FURN.pool.MakeRecordsVector(obRecords);
-	skyblivion->FURN.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->FURN.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->FURN.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->FURN.pool.MakeRecordsVector(skbRecords);
+	geckFile->FURN.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::FURNRecord*> targets = std::vector<Sk::FURNRecord*>();
 	log_debug << obRecords.size() << " FURNs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -891,14 +891,14 @@ void convertFURN(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->FURN.pool.construct(targets.at(i), NULL, false);
+		geckFile->FURN.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->FURN.pool.MakeRecordsVector(modRecords);
+	geckFile->FURN.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::FURNRecord* acti = (Sk::FURNRecord*) modRecords.at(i);
@@ -908,15 +908,15 @@ void convertFURN(SkyblivionConverter &converter) {
 }
 
 void convertLIGH(SkyblivionConverter &converter) {
-	TES4File* oblivionMod = converter.getOblivionFile();
-	TES5File* skyrimMod = converter.getGeckFile();
-	TES5File* skyblivion = converter.getSkyblivionFile();
+	TES4File* oblivionFile = converter.getOblivionFile();
+	TES5File* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> obRecords;
 	std::vector<Record*, std::allocator<Record*>> skbRecords;
 	std::vector<Record*, std::allocator<Record*>> modRecords;
-	oblivionMod->LIGH.pool.MakeRecordsVector(obRecords);
-	skyblivion->LIGH.pool.MakeRecordsVector(skbRecords);
-	skyrimMod->LIGH.pool.MakeRecordsVector(skbRecords);
+	oblivionFile->LIGH.pool.MakeRecordsVector(obRecords);
+	skyblivionFile->LIGH.pool.MakeRecordsVector(skbRecords);
+	geckFile->LIGH.pool.MakeRecordsVector(skbRecords);
 	std::vector<Sk::LIGHRecord*> targets = std::vector<Sk::LIGHRecord*>();
 	log_debug << obRecords.size() << " LIGHs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
@@ -953,14 +953,14 @@ void convertLIGH(SkyblivionConverter &converter) {
 
 
 	for (uint32_t i = 0; i < targets.size(); i++) {
-		skyrimMod->LIGH.pool.construct(targets.at(i), NULL, false);
+		geckFile->LIGH.pool.construct(targets.at(i), NULL, false);
 	}
 
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
-	skyrimMod->LIGH.pool.MakeRecordsVector(modRecords);
+	geckFile->LIGH.pool.MakeRecordsVector(modRecords);
 
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 		Sk::LIGHRecord* acti = (Sk::LIGHRecord*) modRecords.at(i);
@@ -993,11 +993,11 @@ void addSpeakAsNpcs(SkyblivionConverter &converter, Collection &skyrimCollection
 
 	std::string colPrefix = "col_";
 
-	TES5File* skyrimMod = converter.getGeckFile();
-	ModFile *skyblivionMod = converter.getSkyblivionFile();
-
+	ModFile* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
+	
 	Sk::CELLRecord *newCell = new Sk::CELLRecord();
-	newCell->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+	newCell->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
 	std::string cellEdid = std::string();
 	cellEdid = "TES4SpeakAsHoldingCell";
@@ -1026,7 +1026,7 @@ void addSpeakAsNpcs(SkyblivionConverter &converter, Collection &skyrimCollection
 		}
 
 		Sk::ACHRRecord *newAchr = new Sk::ACHRRecord();
-		newAchr->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+		newAchr->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
 		newAchr->EDID.value = cstr;
 		newAchr->flags = 0x400;
@@ -1053,7 +1053,7 @@ void addSpeakAsNpcs(SkyblivionConverter &converter, Collection &skyrimCollection
 		converter.insertToEdidMap(achrEdid, newAchr->formID);
 	}
 
-	skyrimMod->CELL.cell_pool.construct(newCell, NULL, false);
+	geckFile->CELL.cell_pool.construct(newCell, NULL, false);
 
 	std::transform(cellEdid.begin(), cellEdid.end(), cellEdid.begin(), ::tolower);
 
@@ -1307,13 +1307,13 @@ Sk::PACKRecord* getLockPackageTemplate(Sk::PACKRecord* src) {
 }
 
 void addPackageTemplates(SkyblivionConverter &converter, Collection &skyrimCollection) {
-	TES5File* skyrim = converter.getSkyrimFile();
-    ModFile *skyblivionMod = converter.getSkyblivionFile();
-    TES5File* skyrimMod = converter.getGeckFile();
+	TES5File* skyrimFile = converter.getSkyrimFile();
+	ModFile* skyblivionFile = converter.getSkyblivionFile();
+	TES5File* geckFile = converter.getGeckFile();
 	std::vector<Record*, std::allocator<Record*>> skyrimPacks;
-	skyrim->PACK.pool.MakeRecordsVector(skyrimPacks);
+	skyrimFile->PACK.pool.MakeRecordsVector(skyrimPacks);
     std::vector<Record*, std::allocator<Record*>> skbPacks;
-    ((TES5File*)skyblivionMod)->PACK.pool.MakeRecordsVector(skbPacks);
+    ((TES5File*)skyblivionFile)->PACK.pool.MakeRecordsVector(skbPacks);
 
 
     for (int i = 0; i < skbPacks.size(); i++) {
@@ -1324,20 +1324,20 @@ void addPackageTemplates(SkyblivionConverter &converter, Collection &skyrimColle
             Sk::PACKRecord* copy = getLockPackageTemplate(pack);
 
             copy->EDID.value = "TES4FindLockPackageTemplate";
-            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
             converter.insertToEdidMap("TES4FindLockPackageTemplate", copy->formID);
-            skyrimMod->PACK.pool.construct(copy, NULL, false);
+            geckFile->PACK.pool.construct(copy, NULL, false);
         }
 
         if (edid == "TES4UseItemAtPackageTemplate") {
             Sk::PACKRecord* copy = getLockPackageTemplate(pack);
 
             copy->EDID.value = "TES4UseItemAtLockPackageTemplate";
-            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
             converter.insertToEdidMap("TES4UseItemAtLockPackageTemplate", copy->formID);
-            skyrimMod->PACK.pool.construct(copy, NULL, false);
+            geckFile->PACK.pool.construct(copy, NULL, false);
         }
     }
 
@@ -1349,41 +1349,41 @@ void addPackageTemplates(SkyblivionConverter &converter, Collection &skyrimColle
             Sk::PACKRecord* copy = getLockPackageTemplate(pack);
 
             copy->EDID.value = "TES4EatLockTemplate";
-            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
             converter.insertToEdidMap("TES4EatLockTemplate", copy->formID);
-            skyrimMod->PACK.pool.construct(copy, NULL, false);
+            geckFile->PACK.pool.construct(copy, NULL, false);
         }
 
 		if (edid == "Sleep") {
             Sk::PACKRecord* copy = getLockPackageTemplate(pack);
 
             copy->EDID.value = "TES4SleepLockTemplate";
-            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
             converter.insertToEdidMap("TES4SleepLockTemplate", copy->formID);
-            skyrimMod->PACK.pool.construct(copy, NULL, false);
+            geckFile->PACK.pool.construct(copy, NULL, false);
 		}
 
         if (edid == "Sandbox") {
             Sk::PACKRecord* copy = getLockPackageTemplate(pack);
 
             copy->EDID.value = "TES4SandboxLockTemplate";
-            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
 
             converter.insertToEdidMap("TES4SandboxLockTemplate", copy->formID);
-            skyrimMod->PACK.pool.construct(copy, NULL, false);
+            geckFile->PACK.pool.construct(copy, NULL, false);
         }
 
         if (edid == "Travel") {
             Sk::PACKRecord* copy = getLockPackageTemplate(pack);
 
             copy->EDID.value = "TES4TravelLockTemplate";
-            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionMod);
+            copy->formID = skyrimCollection.NextFreeExpandedFormID(skyblivionFile);
             copy->PTRE.value[3]->FNAM = 0;
 
             converter.insertToEdidMap("TES4TravelLockTemplate", copy->formID);
-            skyrimMod->PACK.pool.construct(copy, NULL, false);
+            geckFile->PACK.pool.construct(copy, NULL, false);
         }
 	}
 }
@@ -1427,7 +1427,6 @@ int main(int argc, char * argv[]) {
 
 	log_debug << std::endl << "Converting DIAL records..." << std::endl;
 	std::vector<Sk::DIALRecord *> *resDIAL = converter.convertDIALFromOblivion();
-
 
 	log_debug << std::endl << "Adding SOUN records from SNDR records..." << std::endl;
 	converter.addSOUNFromSNDR();
