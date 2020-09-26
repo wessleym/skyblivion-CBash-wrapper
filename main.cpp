@@ -197,6 +197,20 @@ void convertDOOR(SkyblivionConverter &converter) {
 	
 }
 
+/*std::vector<Sk::ACHRRecord*> getACHR(std::vector<Record*, std::allocator<Record*>> achrRecords, FORMID nameFromID)//WTM:  Added:  I've added this as part of an attempt to attach scripts to ACHR instead of NPC.
+{
+	std::vector<Sk::ACHRRecord*> matchingACHRRecords=std::vector<Sk::ACHRRecord*>();
+	for (int i = 0; i < achrRecords.size(); ++i)
+	{
+		Sk::ACHRRecord* achr = (Sk::ACHRRecord*)achrRecords[i];
+		if (achr->NAME.value == nameFromID)
+		{
+			matchingACHRRecords.push_back(achr);
+		}
+	}
+	return matchingACHRRecords;
+}*/
+
 void convertNPC_(SkyblivionConverter &converter) {
 	TES4File* oblivionFile = converter.getOblivionFile();
 	TES5File* skyblivionFile = converter.getSkyblivionFile();
@@ -211,7 +225,18 @@ void convertNPC_(SkyblivionConverter &converter) {
 	oblivionFile->LVLC.pool.MakeRecordsVector(LeveledCrea);
 	skyblivionFile->NPC_.pool.MakeRecordsVector(skbRecords);
 	geckFile->NPC_.pool.MakeRecordsVector(skbRecords);
-	std::vector<Sk::NPC_Record*> targets = std::vector<Sk::NPC_Record*>();
+	std::vector<Sk::NPC_Record*> npcTargets = std::vector<Sk::NPC_Record*>();
+
+	//WTM:  Note:  Creation Kit logs errors like this:  TES4MQ06MythicDawnAnteGuardF03 (01094E81) cannot be scripted, but has scripts attached to it.
+	//This error seems to only occur for NPC_ and CREA in conjunction with LVLC.
+	//The below commented sections are my attempt at moving the VMAD record from NPC_s and CREAs to the references that utilize the NPC_s and CREAs.
+	//This resulted in tons of errors in SSEEdit.
+	/*std::vector<Record*, std::allocator<Record*>> skyblivionACHRRecords;
+	skyblivionFile->CELL.achr_pool.MakeRecordsVector(skyblivionACHRRecords);
+
+	std::vector<Sk::WRLDRecord*> wrldTargets = std::vector<Sk::WRLDRecord*>();
+	std::vector<Sk::CELLRecord*> cellTargets = std::vector<Sk::CELLRecord*>();
+	std::vector<Sk::ACHRRecord*> achrTargets = std::vector<Sk::ACHRRecord*>();*/
 	log_debug << obRecords.size() << " NPCs found in oblivion file.\n";
 	for (uint32_t it = 0; it < obRecords.size(); ++it) {
 		Ob::NPC_Record *p = (Ob::NPC_Record*)obRecords[it];
@@ -224,18 +249,46 @@ void convertNPC_(SkyblivionConverter &converter) {
 				log_error << "Cannot find NPC_ EDID " << std::string(p->GetEditorIDKey()) << std::endl;
 				continue;
 			}
+
 			Sk::NPC_Record* target = reinterpret_cast<Sk::NPC_Record*>(*foundRec);
 
 			//Find the script
 			Ob::SCPTRecord* script = reinterpret_cast<Ob::SCPTRecord*>(*std::find_if(converter.getScripts().begin(), converter.getScripts().end(), [=](const Record* record) { return record->formID == p->SCRI.value;  }));
 
-			try {
-				Script* convertedScript = converter.createVirtualMachineScriptFor(script);
+			//std::vector<Sk::ACHRRecord*> matchingACHRRecords = getACHR(skyblivionACHRRecords, target->formID);//WTM:  Change:  Added
 
-				target->VMAD = VMADRecord();
-				target->VMAD.scripts.push_back(convertedScript);
-				target->IsChanged(true); //Hack - idk why it doesn't mark itself..
-				targets.push_back(target);
+			try
+			{
+				Script* convertedScript = converter.createVirtualMachineScriptFor(script);
+				/*if (matchingACHRRecords.size() > 0)
+				{
+					for (int i = 0; i < matchingACHRRecords.size(); ++i)
+					{
+						Sk::ACHRRecord* achr = matchingACHRRecords[i];
+						if (!achr->VMAD.IsLoaded()) { achr->VMAD.Load(); }
+						if (achr->VMAD.value->scripts.size() < 1) { achr->VMAD.value = new VMADRecord(); }// Do not override if there are already scripts in VMAD record
+						achr->VMAD.value->scripts.push_back(convertedScript);
+						achr->IsChanged(true); //Hack - idk why it doesn't mark itself..
+						achrTargets.push_back(achr);
+						Sk::CELLRecord* cell = (Sk::CELLRecord*)achr->GetParentRecord();
+						bool cellExists = false; for (int c = 0; c < cellTargets.size(); c++) { if (cellTargets[c]->formID == cell->formID) { cellExists = true; } }
+						if (!cellExists || true) { cellTargets.push_back(cell); }
+						Sk::WRLDRecord* wrld = (Sk::WRLDRecord*)cell->GetParentRecord();
+						if (wrld != NULL)
+						{
+							bool wrldExists = false; for (int w = 0; w < wrldTargets.size(); w++) { if (wrldTargets[w]->formID == wrld->formID) { wrldExists = true; } }
+							if (!wrldExists) { wrldTargets.push_back(wrld); }
+						}
+						log_debug << "Moved NPC_ " << target->formID << " VMAD to ACHR " << achr->formID << " in CELL " << cell->formID << std::endl;
+					}
+				}
+				else
+				{*/
+					target->VMAD = VMADRecord();
+					target->VMAD.scripts.push_back(convertedScript);
+					target->IsChanged(true); //Hack - idk why it doesn't mark itself..
+					npcTargets.push_back(target);
+				//}
 			}
 			catch (std::exception &ex) {
 				log_error << "Cannot bind script to NPC_: " + std::string(ex.what()) << std::endl;
@@ -262,13 +315,39 @@ void convertNPC_(SkyblivionConverter &converter) {
 			//Find the script
 			Ob::SCPTRecord* script = reinterpret_cast<Ob::SCPTRecord*>(*std::find_if(converter.getScripts().begin(), converter.getScripts().end(), [=](const Record* record) { return record->formID == p->SCRI.value;  }));
 
+			//std::vector<Sk::ACHRRecord*> matchingACHRRecords = getACHR(skyblivionACHRRecords, target->formID);//WTM:  Change:  Added
+
 			try {
 				Script* convertedScript = converter.createVirtualMachineScriptFor(script);
-
-				target->VMAD = VMADRecord();
-				target->VMAD.scripts.push_back(convertedScript);
-				target->IsChanged(true); //Hack - idk why it doesn't mark itself..
-				targets.push_back(target);
+				/*if (matchingACHRRecords.size() > 0)
+				{
+					for (int i = 0; i < matchingACHRRecords.size(); ++i)
+					{
+						Sk::ACHRRecord* achr = matchingACHRRecords[i];
+						if (!achr->VMAD.IsLoaded()) { achr->VMAD.Load(); }
+						if (achr->VMAD.value->scripts.size() < 1) { achr->VMAD.value = new VMADRecord(); }// Do not override if there are already scripts in VMAD record
+						achr->VMAD.value->scripts.push_back(convertedScript);
+						achr->IsChanged(true); //Hack - idk why it doesn't mark itself..
+						achrTargets.push_back(achr);
+						Sk::CELLRecord* cell = (Sk::CELLRecord*)achr->GetParentRecord();
+						bool cellExists = false; for (int c = 0; c < cellTargets.size(); c++) { if (cellTargets[c]->formID == cell->formID) { cellExists = true; } }
+						if (!cellExists || true) { cellTargets.push_back(cell); }
+						Sk::WRLDRecord* wrld = (Sk::WRLDRecord*)cell->GetParentRecord();
+						if (wrld != NULL)
+						{
+							bool wrldExists = false; for (int w = 0; w < wrldTargets.size(); w++) { if (wrldTargets[w]->formID == wrld->formID) { wrldExists = true; } }
+							if (!wrldExists) { wrldTargets.push_back(wrld); }
+						}
+						log_debug << "Moved CREA " << target->formID << " VMAD to ACHR " << achr->formID << " in CELL " << cell->formID << std::endl;
+					}
+				}
+				else
+				{*/
+					target->VMAD = VMADRecord();
+					target->VMAD.scripts.push_back(convertedScript);
+					target->IsChanged(true); //Hack - idk why it doesn't mark itself..
+					npcTargets.push_back(target);
+				//}
 			}
 			catch (std::exception &ex) {
 				log_error << "Cannot bind script to NPC_: " + std::string(ex.what()) << std::endl;
@@ -301,16 +380,42 @@ void convertNPC_(SkyblivionConverter &converter) {
 			//Find the script
 			Ob::SCPTRecord* script = reinterpret_cast<Ob::SCPTRecord*>(*std::find_if(converter.getScripts().begin(), converter.getScripts().end(), [=](const Record* record) { return record->formID == p->SCRI.value;  }));
 
+			//std::vector<Sk::ACHRRecord*> matchingACHRRecords = getACHR(skyblivionACHRRecords, target->formID);//WTM:  Change:  Added
+
 			try {
 				Script* convertedScript = converter.createVirtualMachineScriptFor(script);
+				/*if (matchingACHRRecords.size() > 0)
+				{
+					for (int i = 0; i < matchingACHRRecords.size(); ++i)
+					{
+						Sk::ACHRRecord* achr = matchingACHRRecords[i];
+						if (!achr->VMAD.IsLoaded()) { achr->VMAD.Load(); }
+						if (achr->VMAD.value->scripts.size() < 1) { achr->VMAD.value = new VMADRecord(); }// Do not override if there are already scripts in VMAD record
+						achr->VMAD.value->scripts.push_back(convertedScript);
+						achr->IsChanged(true); //Hack - idk why it doesn't mark itself..
+						achrTargets.push_back(achr);
+						Sk::CELLRecord* cell = (Sk::CELLRecord*)achr->GetParentRecord();
+						bool cellExists = false; for (int c = 0; c < cellTargets.size(); c++) { if (cellTargets[c]->formID == cell->formID) { cellExists = true; } }
+						if (!cellExists || true) { cellTargets.push_back(cell); }
+						Sk::WRLDRecord* wrld = (Sk::WRLDRecord*)cell->GetParentRecord();
+						if (wrld != NULL)
+						{
+							bool wrldExists = false; for (int w = 0; w < wrldTargets.size(); w++) { if (wrldTargets[w]->formID == wrld->formID) { wrldExists = true; } }
+							if (!wrldExists) { wrldTargets.push_back(wrld); }
+						}
+						log_debug << "Moved LVLC " << target->formID << " VMAD to ACHR " << achr->formID << " in CELL " << cell->formID << std::endl;
+					}
+				}
+				else
+				{*/
+					// Do not override if there are already scripts in VMAD record
+					if (target->VMAD.scripts.size() < 1)
+						target->VMAD = VMADRecord();
 
-				// Do not override if there are already scripts in VMAD record
-				if (target->VMAD.scripts.size() < 1)
-					target->VMAD = VMADRecord();
-
-				target->VMAD.scripts.push_back(convertedScript);
-				target->IsChanged(true); //Hack - idk why it doesn't mark itself..
-				targets.push_back(target);
+					target->VMAD.scripts.push_back(convertedScript);
+					target->IsChanged(true); //Hack - idk why it doesn't mark itself..
+					npcTargets.push_back(target);
+				//}
 			}
 			catch (std::exception &ex) {
 				log_error << "Cannot bind script to NPC_: " + std::string(ex.what()) << std::endl;
@@ -321,21 +426,45 @@ void convertNPC_(SkyblivionConverter &converter) {
 	}
 
 
-	for (uint32_t i = 0; i < targets.size(); i++) {
-		geckFile->NPC_.pool.construct(targets.at(i), NULL, false);
+	for (uint32_t i = 0; i < npcTargets.size(); i++) {
+		geckFile->NPC_.pool.construct(npcTargets.at(i), NULL, false);
 	}
+	/*for (uint32_t i = 0; i < wrldTargets.size(); i++) {
+		Sk::WRLDRecord* wrld = wrldTargets.at(i);
+		Sk::WRLDRecord* newWRLD = (Sk::WRLDRecord*)geckFile->WRLD.wrld_pool.construct(wrld, NULL, false);
+		newWRLD->CELL = wrld->CELL;
+	}
+	for (uint32_t i = 0; i < cellTargets.size(); i++) {
+		Sk::CELLRecord* cell = cellTargets.at(i);
+		Sk::CELLRecord* newCELL = (Sk::CELLRecord*)geckFile->CELL.cell_pool.construct(cellTargets.at(i), NULL, false);
+		newCELL->ACHR = cell->ACHR;
+	}
+	for (uint32_t i = 0; i < achrTargets.size(); i++) {
+		geckFile->CELL.achr_pool.construct(achrTargets.at(i), NULL, false);
+	}*/
 
 	//TODO:
 	//a) IsChanged flag should be passed on in copy constructor
 	//b) It should be automatically marked when changing fields ( requires encapsulation of input to records )
 	geckFile->NPC_.pool.MakeRecordsVector(modRecords);
-
 	for (uint32_t i = 0; i < modRecords.size(); i++) {
 			Sk::NPC_Record* acti = (Sk::NPC_Record*) modRecords.at(i);
 			acti->IsChanged(true);
 	}
 	
+	/*modRecords.clear();
+	geckFile->CELL.achr_pool.MakeRecordsVector(modRecords);
+	for (uint32_t i = 0; i < modRecords.size(); i++) {
+		Sk::ACHRRecord* achr = (Sk::ACHRRecord*) modRecords.at(i);
+		achr->IsChanged(true);
+	}
 
+	modRecords.clear();
+	geckFile->CELL.cell_pool.MakeRecordsVector(modRecords);
+	for (uint32_t i = 0; i < modRecords.size(); i++) {
+		Sk::CELLRecord* cell = (Sk::CELLRecord*) modRecords.at(i);
+		cell->IsChanged(true);
+	}*/
 }
 
 void convertWEAP(SkyblivionConverter &converter) {
@@ -1418,11 +1547,17 @@ int main(int argc, char * argv[]) {
 	skyrimMod->TES4.MAST.push_back("Skyblivion.esm");
 	skyrimMod->TES4.formVersion = 43;
 
+	log_debug << std::endl << "Loading Oblivion Collection..." << std::endl;
 	oblivionCollection.Load();
+	log_debug << std::endl << "Oblivion Collection Loaded." << std::endl;
+	log_debug << std::endl << "Loading Skyrim Collection..." << std::endl;
 	skyrimCollection.Load();
+
+	log_debug << std::endl << "Skyrim Collection Loaded." << std::endl;
 
 	SkyblivionConverter converter = SkyblivionConverter(oblivionCollection, skyrimCollection, std::string(argv[3]));
 
+	log_debug << std::endl << "Converting Speak as NPCs..." << std::endl;
 	addSpeakAsNpcs(converter, skyrimCollection);
 
 	log_debug << std::endl << "Converting DIAL records..." << std::endl;
@@ -1434,6 +1569,7 @@ int main(int argc, char * argv[]) {
 	/**
 	* @todo - How we handle topics splitted into N dialogue topics and suffixed by QSTI value?
 	*/
+	log_debug << std::endl << "Inserting DIAL into EDID Map..." << std::endl;
 	for (uint32_t it = 0; it < resDIAL->size(); ++it) {
 		Sk::DIALRecord *dial = (Sk::DIALRecord*)(*resDIAL)[it];
 		std::string dialEdid = std::string(dial->EDID.value);
@@ -1446,33 +1582,12 @@ int main(int argc, char * argv[]) {
 
 	log_debug << std::endl << "Converting PACK records..." << std::endl;
     addPackageTemplates(converter, skyrimCollection);
-
-	std::vector<Record*, std::allocator<Record*>> packages;
-	oblivionMod->PACK.pool.MakeRecordsVector(packages);
-
-	int count = packages.size();
-
-	int i = 0;
-	for (uint32_t it = 0; it < packages.size(); ++it) {
-		Ob::PACKRecord *p = (Ob::PACKRecord*)packages[it];
-
-		try {
-			Sk::PACKRecord* skPack = new Sk::PACKRecord();
-			converter.convertPACKFromOblivion(*p, *skPack);
-			skyrimMod->PACK.pool.construct(skPack, NULL, false);
-		}
-		catch (std::exception &e) {
-			log_warning << e.what() << "\n";
-			continue;
-		}
-
-		++i;
-	}
-
+	converter.convertPACKFromOblivion(oblivionMod, skyrimMod);
 
 	/*
 	 * Index new EDIDs and formids
 	 */
+	log_debug << std::endl << "Inserting QUST into EDID Map..." << std::endl;
 	for (uint32_t it = 0; it < resQUST->size(); ++it) {
 		Sk::QUSTRecord *qust = (Sk::QUSTRecord*)(*resQUST)[it];
 		std::string qustEdid = std::string(qust->EDID.value);
@@ -1512,7 +1627,9 @@ int main(int argc, char * argv[]) {
 
     ModSaveFlags skSaveFlags = ModSaveFlags(2);
 
+	log_debug << std::endl << "Saving..." << std::endl;
     skyrimCollection.SaveMod((ModFile*&)skyrimMod, skSaveFlags, "GECK.esp");
+	log_debug << std::endl << "Saved." << std::endl;
 
     return 0;
 
